@@ -1,4 +1,6 @@
+#include <array>
 #include "wx/wx.h"
+#include "wx/richtext/richtextctrl.h"
 #pragma once
 
 class cMain : public wxFrame
@@ -6,11 +8,9 @@ class cMain : public wxFrame
 public:
 	cMain();
 
-	wxButton* m_btn = nullptr;
-	wxTextCtrl* m_txt = nullptr;
-	wxListBox* m_list = nullptr;
+	wxRichTextCtrl* richTextCtrl = nullptr;
 
-	void OnButtonClicked(wxCommandEvent& evt);
+	std::array<wxFont, 3> fonts;
 
 	wxDECLARE_EVENT_TABLE();
 };
