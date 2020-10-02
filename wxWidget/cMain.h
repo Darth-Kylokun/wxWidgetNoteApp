@@ -5,4 +5,8 @@ class cMain : public wxFrame
 {
 public:
 	cMain();
+
+	wxButton* m_btn = nullptr;
+	wxTextCtrl* m_txt = nullptr;
+	wxListBox* m_list = nullptr;
 };
