@@ -34,9 +34,22 @@ void cMain::load(wxCommandEvent& evt)
 	if (openFileDialog.get()->ShowModal() == wxID_CANCEL)
 		return;
 
+	wxString lastThree = "";
+	for (int i = 1; i <= 3; ++i)
+		lastThree.append(openFileDialog.get()->GetPath()[openFileDialog.get()->GetPath().size() - i]);
+
+	if (lastThree != "txt")
+		return;
+
 	fileLoc = openFileDialog.get()->GetPath();
 	firstSaveFlag = false;
 	richTextCtrl->LoadFile(openFileDialog.get()->GetPath());
+
+	wxString newTitle = "Totally Not A Notepad Rip Off (";
+	newTitle.append(openFileDialog.get()->GetPath());
+	newTitle.append(")");
+	this->SetTitle(newTitle);
+
 	return;
 }
 
@@ -46,26 +59,20 @@ void cMain::save(wxCommandEvent& evt)
 	{
 		std::unique_ptr<wxFileDialog> saveFileDialog = std::make_unique<wxFileDialog>(this, "Save File:");
 		if (saveFileDialog.get()->ShowModal() == wxID_CANCEL)
-		{
-			evt.Skip();
 			return;
-		}
 
 		richTextCtrl->SaveFile(saveFileDialog.get()->GetPath());
 
 		firstSaveFlag = false;
 		fileLoc = saveFileDialog.get()->GetPath();
-		evt.Skip();
 		return;
 	}
 	richTextCtrl->SaveFile(fileLoc);
-	evt.Skip();
 	return;
 }
 
 void cMain::exit(wxCommandEvent& evt)
 {
 	this->Close();
-	evt.Skip();
 	return;
 }
