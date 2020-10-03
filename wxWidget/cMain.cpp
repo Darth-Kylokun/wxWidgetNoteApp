@@ -1,6 +1,7 @@
 #include "cMain.h"
 
 wxBEGIN_EVENT_TABLE(cMain, wxFrame)
+	EVT_MENU(10001, load)
 	EVT_MENU(10002, save)
 	EVT_MENU(10003, exit)
 wxEND_EVENT_TABLE()
@@ -27,18 +28,31 @@ cMain::cMain()
 	this->SetMenuBar(menuBar);
 }
 
+void cMain::load(wxCommandEvent& evt)
+{
+	wxFileDialog* openFileDialog = new wxFileDialog(this, "Open File:");
+	if (openFileDialog->ShowModal() == wxID_CANCEL)
+		return;
+	
+	richTextCtrl->LoadFile(openFileDialog->GetPath());
+}
+
 void cMain::save(wxCommandEvent& evt)
 {
-	wxFileDialog* saveFileDialog = new wxFileDialog(this, "Save File: ");
-	if (saveFileDialog->ShowModal() == wxID_CANCEL)
-		return;
-
-	wxFileOutputStream stream(saveFileDialog->GetPath());
-	if (!stream.IsOk())
+	if (firstSaveFlag)
 	{
-		wxLogError("Cannont save file in '%s'", saveFileDialog->GetPath());
-		return;
+		wxFileDialog* saveFileDialog = new wxFileDialog(this, "Save File: ");
+		if (saveFileDialog->ShowModal() == wxID_CANCEL)
+			return;
+
+		wxFileOutputStream* stream = new wxFileOutputStream(saveFileDialog->GetPath());
+		if (!stream->IsOk())
+		{
+			wxLogError("Cannont save file in '%s'", saveFileDialog->GetPath());
+			return;
+		}
 	}
+
 }
 
 void cMain::exit(wxCommandEvent& evt)

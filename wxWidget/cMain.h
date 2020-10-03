@@ -10,6 +10,7 @@ class cMain : public wxFrame
 public:
 	cMain();
 
+	void load(wxCommandEvent& evt);
 	void save(wxCommandEvent& evt);
 	void exit(wxCommandEvent& evt);
 
@@ -18,4 +19,5 @@ private:
 	std::array<wxFont, 3> fonts;
 	wxRichTextCtrl* richTextCtrl = nullptr;
 	wxMenuBar* menuBar = nullptr;
+	bool firstSaveFlag = true;
 };
