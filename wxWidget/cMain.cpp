@@ -11,52 +11,68 @@ wxEND_EVENT_TABLE()
 //fonts[2] is italic
 
 cMain::cMain()
-	: wxFrame{ nullptr, wxID_ANY, "Totally not a Notepad rip off", wxPoint(30, 30), wxSize(800, 600) },
+	: wxFrame{ nullptr, wxID_ANY, "Totally Not A Notepad Rip Off", wxPoint(30, 30), wxSize(800, 600) },
 	  richTextCtrl{ new wxRichTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL | wxBORDER_DEFAULT | wxWANTS_CHARS) },
 	  fonts{ wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL), wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD), wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL) },
 	  menuBar{ new wxMenuBar() }
 {
 	richTextCtrl->SetFont(fonts[0]);
+	
+	wxMenu* fileMenu = new wxMenu();
+	fileMenu->Append(10001, "Load");
+	fileMenu->Append(10002, "Save");
+	fileMenu->Append(10003, "Exit");
 
-	wxMenu* menu = new wxMenu();
-	menu->Append(10001, "Open");
-	menu->Append(10002, "Save");
-	menu->Append(10003, "Exit");
-
-	menuBar->Append(menu, "File");
+	menuBar->Append(fileMenu, "File");
 
 	this->SetMenuBar(menuBar);
 }
 
 void cMain::load(wxCommandEvent& evt)
 {
-	wxFileDialog* openFileDialog = new wxFileDialog(this, "Open File:");
-	if (openFileDialog->ShowModal() == wxID_CANCEL)
+	std::unique_ptr<wxFileDialog> openFileDialog = std::make_unique<wxFileDialog>(this, "OpenFile:");
+	if (openFileDialog.get()->ShowModal() == wxID_CANCEL)
 		return;
-	
-	richTextCtrl->LoadFile(openFileDialog->GetPath());
+
+	wxString lastThree = "";
+	for (int i = 1; i <= 3; ++i)
+		lastThree.append(openFileDialog.get()->GetPath()[openFileDialog.get()->GetPath().size() - i]);
+
+	if (lastThree != "txt")
+		return;
+
+	fileLoc = openFileDialog.get()->GetPath();
+	firstSaveFlag = false;
+	richTextCtrl->LoadFile(openFileDialog.get()->GetPath());
+
+	wxString newTitle = "Totally Not A Notepad Rip Off (";
+	newTitle.append(openFileDialog.get()->GetPath());
+	newTitle.append(")");
+	this->SetTitle(newTitle);
+
+	return;
 }
 
 void cMain::save(wxCommandEvent& evt)
 {
 	if (firstSaveFlag)
 	{
-		wxFileDialog* saveFileDialog = new wxFileDialog(this, "Save File: ");
-		if (saveFileDialog->ShowModal() == wxID_CANCEL)
+		std::unique_ptr<wxFileDialog> saveFileDialog = std::make_unique<wxFileDialog>(this, "Save File:");
+		if (saveFileDialog.get()->ShowModal() == wxID_CANCEL)
 			return;
 
-		wxFileOutputStream* stream = new wxFileOutputStream(saveFileDialog->GetPath());
-		if (!stream->IsOk())
-		{
-			wxLogError("Cannont save file in '%s'", saveFileDialog->GetPath());
-			return;
-		}
+		richTextCtrl->SaveFile(saveFileDialog.get()->GetPath());
+
+		firstSaveFlag = false;
+		fileLoc = saveFileDialog.get()->GetPath();
+		return;
 	}
-
+	richTextCtrl->SaveFile(fileLoc);
+	return;
 }
 
 void cMain::exit(wxCommandEvent& evt)
 {
 	this->Close();
-	evt.Skip();
+	return;
 }
