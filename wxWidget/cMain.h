@@ -1,4 +1,5 @@
 #include <array>
+#include <memory>
 #include "wx/wx.h"
 #include "wx/richtext/richtextctrl.h"
 #include "wx/filedlg.h"
@@ -20,4 +21,5 @@ private:
 	wxRichTextCtrl* richTextCtrl = nullptr;
 	wxMenuBar* menuBar = nullptr;
 	bool firstSaveFlag = true;
+	wxString fileLoc;
 };
