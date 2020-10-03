@@ -65,6 +65,12 @@ void cMain::save(wxCommandEvent& evt)
 
 		firstSaveFlag = false;
 		fileLoc = saveFileDialog.get()->GetPath();
+
+		wxString newTitle = "Totally Not A Notepad Rip Off (";
+		newTitle.append(fileLoc);
+		newTitle.append(")");
+		this->SetTitle(newTitle);
+
 		return;
 	}
 	richTextCtrl->SaveFile(fileLoc);
