@@ -1,5 +1,6 @@
 #include <array>
 #include <memory>
+#include <cstdint>
 #include "wx/wx.h"
 #include "wx/richtext/richtextctrl.h"
 #include "wx/filedlg.h"
@@ -14,6 +15,9 @@ public:
 	void load(wxCommandEvent& evt);
 	void save(wxCommandEvent& evt);
 	void exit(wxCommandEvent& evt);
+	void fontIncrease(wxCommandEvent& evt);
+	void fontDecrease(wxCommandEvent& evt);
+	void changeFontFamily(wxCommandEvent& evt);
 
 	wxDECLARE_EVENT_TABLE();
 private:
@@ -22,4 +26,8 @@ private:
 	wxMenuBar* menuBar = nullptr;
 	bool firstSaveFlag = true;
 	wxString fileLoc;
+	uint_least32_t fontSize = 12;
+	wxFontFamily fontFamily = wxFONTFAMILY_ROMAN;
+	wxFontStyle fontStyle = wxFONTSTYLE_NORMAL;
+	wxFontWeight fontWeight = wxFONTWEIGHT_NORMAL;
 };

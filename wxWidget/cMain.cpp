@@ -4,6 +4,9 @@ wxBEGIN_EVENT_TABLE(cMain, wxFrame)
 	EVT_MENU(10001, load)
 	EVT_MENU(10002, save)
 	EVT_MENU(10003, exit)
+	EVT_MENU(10004, fontIncrease)
+	EVT_MENU(10005, fontDecrease)
+	EVT_MENU(10006, changeFontFamily)
 wxEND_EVENT_TABLE()
 
 //fonts[0] is normal
@@ -13,17 +16,22 @@ wxEND_EVENT_TABLE()
 cMain::cMain()
 	: wxFrame{ nullptr, wxID_ANY, "Totally Not A Notepad Rip Off", wxPoint(30, 30), wxSize(800, 600) },
 	  richTextCtrl{ new wxRichTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL | wxBORDER_DEFAULT | wxWANTS_CHARS) },
-	  fonts{ wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL), wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD), wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL) },
 	  menuBar{ new wxMenuBar() }
 {
-	richTextCtrl->SetFont(fonts[0]);
+	richTextCtrl->SetFont(wxFont(fontSize, fontFamily, fontStyle, fontWeight));
 	
 	wxMenu* fileMenu = new wxMenu();
 	fileMenu->Append(10001, "Load");
 	fileMenu->Append(10002, "Save");
 	fileMenu->Append(10003, "Exit");
 
+	wxMenu* editMenu = new wxMenu();
+	editMenu->Append(10004, "Increase Font");
+	editMenu->Append(10005, "Decrease Font");
+	editMenu->Append(10006, "Change Font");
+
 	menuBar->Append(fileMenu, "File");
+	menuBar->Append(editMenu, "Edit");
 
 	this->SetMenuBar(menuBar);
 }
@@ -75,6 +83,26 @@ void cMain::save(wxCommandEvent& evt)
 	}
 	richTextCtrl->SaveFile(fileLoc);
 	return;
+}
+
+void cMain::fontIncrease(wxCommandEvent& evt)
+{
+	fontSize += 1;
+	richTextCtrl->SetFont(wxFont(fontSize, fontFamily, fontStyle, fontWeight));
+}
+
+void cMain::fontDecrease(wxCommandEvent& evt)
+{
+	if (fontSize != 1)
+	{
+		fontSize -= 1;
+		richTextCtrl->SetFont(wxFont(fontSize, fontFamily, fontStyle, fontWeight));
+	}
+}
+
+void cMain::changeFontFamily(wxCommandEvent& evt)
+{
+
 }
 
 void cMain::exit(wxCommandEvent& evt)
