@@ -1,4 +1,3 @@
-#include <array>
 #include <memory>
 #include <cstdint>
 #include "wx/wx.h"
@@ -17,17 +16,26 @@ public:
 	void exit(wxCommandEvent& evt);
 	void fontIncrease(wxCommandEvent& evt);
 	void fontDecrease(wxCommandEvent& evt);
-	void changeFontFamily(wxCommandEvent& evt);
+	void keyMacros(wxCommandEvent& key);
 
 	wxDECLARE_EVENT_TABLE();
 private:
-	std::array<wxFont, 3> fonts;
-	wxRichTextCtrl* richTextCtrl = nullptr;
+	wxTextCtrl* textCtrl = nullptr;
 	wxMenuBar* menuBar = nullptr;
-	bool firstSaveFlag = true;
+	struct
+	{
+		bool firstSaveFlag = true;
+		bool saved = true;
+	} flags;
 	wxString fileLoc;
-	uint_least32_t fontSize = 12;
-	wxFontFamily fontFamily = wxFONTFAMILY_ROMAN;
-	wxFontStyle fontStyle = wxFONTSTYLE_NORMAL;
-	wxFontWeight fontWeight = wxFONTWEIGHT_NORMAL;
+	struct
+	{
+		uint_least32_t size = 12;
+		wxFontFamily family = wxFONTFAMILY_ROMAN;
+		wxFontStyle style = wxFONTSTYLE_NORMAL;
+		wxFontWeight weight = wxFONTWEIGHT_NORMAL;
+	} font;
+
+	void m_save();
+	void m_load();
 };
