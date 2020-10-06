@@ -4,31 +4,109 @@ wxBEGIN_EVENT_TABLE(cMain, wxFrame)
 	EVT_MENU(10001, load)
 	EVT_MENU(10002, save)
 	EVT_MENU(10003, exit)
+	EVT_MENU(10004, fontIncrease)
+	EVT_MENU(10005, fontDecrease)
+	EVT_TEXT(10006, unsave)
 wxEND_EVENT_TABLE()
-
-//fonts[0] is normal
-//fonts[1] is bold
-//fonts[2] is italic
 
 cMain::cMain()
 	: wxFrame{ nullptr, wxID_ANY, "Totally Not A Notepad Rip Off", wxPoint(30, 30), wxSize(800, 600) },
-	  richTextCtrl{ new wxRichTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL | wxBORDER_DEFAULT | wxWANTS_CHARS) },
-	  fonts{ wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL), wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD), wxFont(12, wxFONTFAMILY_ROMAN, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_NORMAL) },
+	  textCtrl{ new wxTextCtrl(this, 10006, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxVSCROLL | wxHSCROLL | wxBORDER_SUNKEN  | wxTE_MULTILINE) },
 	  menuBar{ new wxMenuBar() }
 {
-	richTextCtrl->SetFont(fonts[0]);
-	
+	textCtrl->SetFont(wxFont(font.size, font.family, font.style, font.weight));
+
 	wxMenu* fileMenu = new wxMenu();
 	fileMenu->Append(10001, "Load");
 	fileMenu->Append(10002, "Save");
 	fileMenu->Append(10003, "Exit");
 
+	wxMenu* editMenu = new wxMenu();
+	editMenu->Append(10004, "Increase Font");
+	editMenu->Append(10005, "Decrease Font");
+
 	menuBar->Append(fileMenu, "File");
+	menuBar->Append(editMenu, "Edit");
 
 	this->SetMenuBar(menuBar);
 }
 
 void cMain::load(wxCommandEvent& evt)
+{
+	m_load();
+	evt.Skip();
+}
+
+void cMain::save(wxCommandEvent& evt)
+{
+	m_save();
+	evt.Skip();
+}
+
+void cMain::fontIncrease(wxCommandEvent& evt)
+{
+	m_fontIncrease();
+	evt.Skip();
+}
+
+void cMain::fontDecrease(wxCommandEvent& evt)
+{
+	m_fontDecrease();
+	evt.Skip();
+}
+
+void cMain::unsave(wxCommandEvent& evt)
+{
+	if (flags.saved)
+	{
+		this->SetTitle(this->GetTitle() + "*");
+		flags.saved = false;
+	}
+}
+
+void cMain::m_fontIncrease()
+{
+	font.size += 1;
+	textCtrl->SetFont(wxFont(font.size, font.family, font.style, font.weight));
+}
+
+void cMain::m_fontDecrease()
+{
+	if (font.size != 1)
+	{
+		font.size -= 1;
+		textCtrl->SetFont(wxFont(font.size, font.family, font.style, font.weight));
+	}
+}
+
+void cMain::m_save()
+{
+	if (flags.firstSaveFlag && !flags.saved)
+	{
+		std::unique_ptr<wxFileDialog> saveFileDialog = std::make_unique<wxFileDialog>(this, "Save File:");
+		if (saveFileDialog.get()->ShowModal() == wxID_CANCEL)
+			return;
+
+		textCtrl->SaveFile(saveFileDialog.get()->GetPath());
+
+		flags.firstSaveFlag = false;
+		flags.saved = true;
+		fileLoc = saveFileDialog.get()->GetPath();
+
+		this->SetTitle(this->GetTitle().RemoveLast() + (" (" + saveFileDialog.get()->GetPath() + ")"));
+
+		return;
+	}
+	if (!flags.saved)
+	{
+		flags.saved = true;
+		this->SetTitle(this->GetTitle().RemoveLast());
+		textCtrl->SaveFile(fileLoc);
+		return;
+	}
+}
+
+void cMain::m_load()
 {
 	std::unique_ptr<wxFileDialog> openFileDialog = std::make_unique<wxFileDialog>(this, "OpenFile:");
 	if (openFileDialog.get()->ShowModal() == wxID_CANCEL)
@@ -42,40 +120,14 @@ void cMain::load(wxCommandEvent& evt)
 		return;
 
 	fileLoc = openFileDialog.get()->GetPath();
-	firstSaveFlag = false;
-	richTextCtrl->LoadFile(openFileDialog.get()->GetPath());
+	flags.firstSaveFlag = false;
+	textCtrl->LoadFile(openFileDialog.get()->GetPath());
 
-	wxString newTitle = "Totally Not A Notepad Rip Off (";
-	newTitle.append(openFileDialog.get()->GetPath());
-	newTitle.append(")");
-	this->SetTitle(newTitle);
-
+	this->SetTitle("Totally Not A Notepad Rip Off (" + openFileDialog.get()->GetPath() + ")");
+	flags.saved = true;
 	return;
 }
 
-void cMain::save(wxCommandEvent& evt)
-{
-	if (firstSaveFlag)
-	{
-		std::unique_ptr<wxFileDialog> saveFileDialog = std::make_unique<wxFileDialog>(this, "Save File:");
-		if (saveFileDialog.get()->ShowModal() == wxID_CANCEL)
-			return;
-
-		richTextCtrl->SaveFile(saveFileDialog.get()->GetPath());
-
-		firstSaveFlag = false;
-		fileLoc = saveFileDialog.get()->GetPath();
-
-		wxString newTitle = "Totally Not A Notepad Rip Off (";
-		newTitle.append(fileLoc);
-		newTitle.append(")");
-		this->SetTitle(newTitle);
-
-		return;
-	}
-	richTextCtrl->SaveFile(fileLoc);
-	return;
-}
 
 void cMain::exit(wxCommandEvent& evt)
 {
