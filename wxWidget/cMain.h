@@ -16,11 +16,17 @@ public:
 	void exit(wxCommandEvent& evt);
 	void fontIncrease(wxCommandEvent& evt);
 	void fontDecrease(wxCommandEvent& evt);
-	void keyMacros(wxCommandEvent& key);
+	void unsave(wxCommandEvent& key);
+	
+	void m_fontIncrease();
+	void m_fontDecrease();
+	void m_save();
+	void m_load();
+
+	wxTextCtrl* textCtrl = nullptr;
 
 	wxDECLARE_EVENT_TABLE();
 private:
-	wxTextCtrl* textCtrl = nullptr;
 	wxMenuBar* menuBar = nullptr;
 	struct
 	{
@@ -35,7 +41,4 @@ private:
 		wxFontStyle style = wxFONTSTYLE_NORMAL;
 		wxFontWeight weight = wxFONTWEIGHT_NORMAL;
 	} font;
-
-	void m_save();
-	void m_load();
 };

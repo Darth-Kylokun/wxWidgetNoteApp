@@ -45,18 +45,13 @@ void cMain::save(wxCommandEvent& evt)
 
 void cMain::fontIncrease(wxCommandEvent& evt)
 {
-	font.size += 1;
-	textCtrl->SetFont(wxFont(font.size, font.family, font.style, font.weight));
+	m_fontIncrease();
 	evt.Skip();
 }
 
 void cMain::fontDecrease(wxCommandEvent& evt)
 {
-	if (font.size != 1)
-	{
-		font.size -= 1;
-		textCtrl->SetFont(wxFont(font.size, font.family, font.style, font.weight));
-	}
+	m_fontDecrease();
 	evt.Skip();
 }
 
@@ -69,26 +64,41 @@ void cMain::unsave(wxCommandEvent& evt)
 	}
 }
 
+void cMain::m_fontIncrease()
+{
+	font.size += 1;
+	textCtrl->SetFont(wxFont(font.size, font.family, font.style, font.weight));
+}
+
+void cMain::m_fontDecrease()
+{
+	if (font.size != 1)
+	{
+		font.size -= 1;
+		textCtrl->SetFont(wxFont(font.size, font.family, font.style, font.weight));
+	}
+}
+
 void cMain::m_save()
 {
+	if (flags.firstSaveFlag && !flags.saved)
+	{
+		std::unique_ptr<wxFileDialog> saveFileDialog = std::make_unique<wxFileDialog>(this, "Save File:");
+		if (saveFileDialog.get()->ShowModal() == wxID_CANCEL)
+			return;
+
+		textCtrl->SaveFile(saveFileDialog.get()->GetPath());
+
+		flags.firstSaveFlag = false;
+		flags.saved = true;
+		fileLoc = saveFileDialog.get()->GetPath();
+
+		this->SetTitle(this->GetTitle().RemoveLast() + (" (" + saveFileDialog.get()->GetPath() + ")"));
+
+		return;
+	}
 	if (!flags.saved)
 	{
-		if (flags.firstSaveFlag)
-		{
-			std::unique_ptr<wxFileDialog> saveFileDialog = std::make_unique<wxFileDialog>(this, "Save File:");
-			if (saveFileDialog.get()->ShowModal() == wxID_CANCEL)
-				return;
-
-			textCtrl->SaveFile(saveFileDialog.get()->GetPath());
-
-			flags.firstSaveFlag = false;
-			flags.saved = true;
-			fileLoc = saveFileDialog.get()->GetPath();
-
-			this->SetTitle(this->GetTitle().RemoveLast() + (" (" + saveFileDialog.get()->GetPath() + ")"));
-
-			return;
-		}
 		flags.saved = true;
 		this->SetTitle(this->GetTitle().RemoveLast());
 		textCtrl->SaveFile(fileLoc);
@@ -117,6 +127,7 @@ void cMain::m_load()
 	flags.saved = true;
 	return;
 }
+
 
 void cMain::exit(wxCommandEvent& evt)
 {
